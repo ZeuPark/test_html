@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Q&A Hub - Senior-Friendly Platform{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css_styles.css') }}">
+    <script src="{{ url_for('static', filename='javascript_file.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <a href="{{ url_for('home') }}">Q&A Hub</a>
+            </div>
+            <nav class="nav-menu">
+                <a href="{{ url_for('categories') }}" class="nav-item">Categories</a>
+                <a href="{{ url_for('community') }}" class="nav-item">Community</a>
+                <a href="{{ url_for('questions') }}" class="nav-item">Questions</a>
+                <a href="{{ url_for('mypage') }}" class="nav-item">My Page</a>
+            </nav>
+            <div class="header-right">
+                <div class="search-container">
+                    <input type="text" id="searchBar" class="search-bar" placeholder="Search questions...">
+                    <button id="searchBtn" class="search-btn">🔍</button>
+                </div>
+                <button class="login-btn" onclick="showLogin()">Login</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Ask Question Modal -->
+        <div id="askModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Ask a Question</h2>
+                    <span class="close" onclick="closeAskModal()">&times;</span>
+                </div>
+                <form id="askForm">
+                    <div class="form-group">
+                        <label for="questionTitle">Your Question:</label>
+                        <textarea id="questionTitle" rows="3" placeholder="What would you like to know?" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="questionCategory">Category:</label>
+                        <select id="questionCategory">
+                            <option value="General">General</option>
+                            <option value="Travel">Travel & Vacation</option>
+                            <option value="Legal">Legal Advice</option>
+                            <option value="Health">Health & Wellness</option>
+                            <option value="Technology">Technology Help</option>
+                            <option value="Finance">Finance & Money</option>
+                            <option value="Hobbies">Hobbies & Crafts</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <span id="submitText">Get AI Answer</span>
+                        <span id="loadingText" style="display: none;">Thinking... 🤔</span>
+                    </button>
+                </form>
+                <div id="aiResponse" class="ai-response" style="display: none;">
+                    <h3>AI Answer:</h3>
+                    <div id="aiAnswerText"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Results Modal -->
+        <div id="searchModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Search Results</h2>
+                    <span class="close" onclick="closeSearchModal()">&times;</span>
+                </div>
+                <div id="searchResults"></div>
+            </div>
+        </div>
+    </div>
+
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

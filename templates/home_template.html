@@ -1,0 +1,188 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="home-content">
+    <h1 class="main-title">Ask About Anything!</h1>
+    <p class="subtitle">Get instant AI-powered answers to your questions. Our smart system is here to help with information on any topic.</p>
+    
+    <!-- Quick Ask Section -->
+    <div class="quick-ask-section">
+        <button class="ask-question-btn" onclick="openAskModal()">
+            🤖 Ask AI a Question
+        </button>
+    </div>
+    
+    <div class="content-grid">
+        <div class="content-box" onclick="openCategoryModal('travel')">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=200&fit=crop&crop=center" alt="Beautiful beach scene" class="box-image">
+            <div class="box-content">
+                <div class="box-title">Travel & Vacation</div>
+                <div class="box-subtitle">Planning trips, destinations, and travel tips</div>
+                <span class="box-keyword">Travel</span>
+            </div>
+        </div>
+        
+        <div class="content-box" onclick="openCategoryModal('legal')">
+            <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=200&fit=crop&crop=center" alt="Legal books and gavel" class="box-image">
+            <div class="box-content">
+                <div class="box-title">Legal Advice</div>
+                <div class="box-subtitle">Legal questions and guidance</div>
+                <span class="box-keyword">Law</span>
+            </div>
+        </div>
+        
+        <div class="content-box" onclick="openCategoryModal('health')">
+            <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=200&fit=crop&crop=center" alt="Doctor with stethoscope" class="box-image">
+            <div class="box-content">
+                <div class="box-title">Health & Wellness</div>
+                <div class="box-subtitle">Medical questions and health tips</div>
+                <span class="box-keyword">Health</span>
+            </div>
+        </div>
+        
+        <div class="content-box" onclick="openCategoryModal('technology')">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop&crop=center" alt="Technology and computer" class="box-image">
+            <div class="box-content">
+                <div class="box-title">Technology Help</div>
+                <div class="box-subtitle">Computer and device assistance</div>
+                <span class="box-keyword">Technology</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="recent-section">
+        <h2>Recent Questions</h2>
+        <div class="recent-questions" id="recentQuestions">
+            <!-- Questions will be loaded here by JavaScript -->
+        </div>
+        <a href="{{ url_for('questions') }}" class="view-all-btn">View All Questions →</a>
+    </div>
+</div>
+
+<style>
+.quick-ask-section {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.ask-question-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 20px 40px;
+    font-size: 24px;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.ask-question-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+}
+
+.recent-section {
+    margin-top: 80px;
+    text-align: center;
+}
+
+.recent-section h2 {
+    font-size: 36px;
+    margin-bottom: 30px;
+    color: var(--accent-color);
+}
+
+.recent-questions {
+    display: grid;
+    gap: 16px;
+    max-width: 800px;
+    margin: 0 auto 30px auto;
+}
+
+.recent-question-item {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.recent-question-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: var(--blue-accent);
+}
+
+.recent-question-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 8px;
+}
+
+.recent-question-meta {
+    font-size: 14px;
+    color: var(--secondary-text);
+    display: flex;
+    gap: 15px;
+}
+
+.view-all-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: var(--light-bg);
+    color: var(--accent-color);
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.view-all-btn:hover {
+    background: var(--border-color);
+}
+</style>
+
+<script>
+// Load recent questions on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadRecentQuestions();
+});
+
+async function loadRecentQuestions() {
+    try {
+        const response = await fetch('/api/questions');
+        const questions = await response.json();
+        
+        const container = document.getElementById('recentQuestions');
+        container.innerHTML = questions.slice(0, 3).map(question => `
+            <div class="recent-question-item" onclick="viewQuestion(${question.id})">
+                <div class="recent-question-title">${question.title}</div>
+                <div class="recent-question-meta">
+                    <span>${question.category}</span>
+                    <span>${question.answers} answers</span>
+                    <span>${question.timestamp}</span>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading recent questions:', error);
+    }
+}
+
+function openCategoryModal(category) {
+    // Set the category in the ask modal and open it
+    document.getElementById('questionCategory').value = category.charAt(0).toUpperCase() + category.slice(1);
+    openAskModal();
+}
+
+function viewQuestion(questionId) {
+    // In a real app, this would navigate to a question detail page
+    window.location.href = `/questions#question-${questionId}`;
+}
+</script>
+{% endblock %}

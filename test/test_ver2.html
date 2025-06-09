@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senior-Friendly Q&A Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-text: #1a1a1a;
+            --secondary-text: #666666;
+            --accent-color: #000000;
+            --light-bg: #f8f8f8;
+            --white: #ffffff;
+            --border-color: #e5e5e5;
+            --blue-accent: #2563eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            background: var(--white);
+            color: var(--primary-text);
+            font-size: 18px;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            padding: 32px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--accent-color);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-item {
+            color: var(--primary-text);
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 400;
+            transition: color 0.3s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-item:hover {
+            color: var(--secondary-text);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-bar {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            background: var(--light-bg);
+            width: 240px;
+            transition: all 0.3s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: var(--white);
+        }
+
+        .search-bar::placeholder {
+            color: var(--secondary-text);
+        }
+
+        .login-btn {
+            padding: 12px 24px;
+            background: var(--blue-accent);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .login-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .main-title {
+            font-size: clamp(48px, 8vw, 72px);
+            font-weight: 500;
+            color: var(--accent-color);
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: var(--secondary-text);
+            margin-bottom: 80px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            letter-spacing: -0.01em;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .content-box {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(0,0,0,0.02) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .content-box:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        .content-box:hover::before {
+            opacity: 1;
+        }
+
+        .content-box.featured {
+            background: var(--light-bg);
+            border-color: var(--accent-color);
+        }
+
+        .box-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        .box-content {
+            padding: 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .box-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .box-subtitle {
+            font-size: 16px;
+            color: var(--secondary-text);
+            letter-spacing: -0.01em;
+        }
+
+        .box-keyword {
+            display: inline-block;
+            background: var(--blue-accent);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+
+        /* Login Modal */
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-modal.active {
+            display: flex;
+        }
+
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--secondary-text);
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--blue-accent);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--blue-accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 24px 20px;
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            .nav-menu {
+                order: 2;
+                gap: 24px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .header-right {
+                order: 3;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .search-bar {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .main-content {
+                padding: 60px 20px;
+            }
+
+            .subtitle {
+                margin-bottom: 60px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+        }
+
+        /* Focus states */
+        .nav-item:focus,
+        .search-bar:focus,
+        .content-box:focus,
+        .login-btn:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        /* Loading animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .content-box {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .content-box:nth-child(1) { animation-delay: 0.1s; }
+        .content-box:nth-child(2) { animation-delay: 0.2s; }
+        .content-box:nth-child(3) { animation-delay: 0.3s; }
+        .content-box:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">Q&A Hub</div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item">Categories</a>
+                <a href="#" class="nav-item">Community</a>
+                <a href="#" class="nav-item">Questions</a>
+                <a href="#" class="nav-item">My Page</a>
+            </nav>
+            <div class="header-right">
+                <input type="text" class="search-bar" placeholder="Search questions...">
+                <button class="login-btn" id="loginBtn">Login</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <h1 class="main-title">Ask About Anything!</h1>
+            <p class="subtitle">Get answers from our friendly community. Browse topics, ask questions, and share your knowledge with others.</p>
+            
+            <div class="content-grid">
+                <div class="content-box featured" tabindex="0">
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=200&fit=crop&crop=center" alt="Beautiful beach scene" class="box-image">
+                    <div class="box-content">
+                        <div class="box-title">Travel & Vacation</div>
+                        <div class="box-subtitle">Planning trips, destinations, and travel tips</div>
+                        <span class="box-keyword">Travel</span>
+                    </div>
+                </div>
+                
+                <div class="content-box" tabindex="0">
+                    <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=200&fit=crop&crop=center" alt="Legal books and gavel" class="box-image">
+                    <div class="box-content">
+                        <div class="box-title">Legal Advice</div>
+                        <div class="box-subtitle">Legal questions and guidance</div>
+                        <span class="box-keyword">Law</span>
+                    </div>
+                </div>
+                
+                <div class="content-box" tabindex="0">
+                    <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=200&fit=crop&crop=center" alt="Doctor with stethoscope" class="box-image">
+                    <div class="box-content">
+                        <div class="box-title">Health & Wellness</div>
+                        <div class="box-subtitle">Medical questions and health tips</div>
+                        <span class="box-keyword">Health</span>
+                    </div>
+                </div>
+                
+                <div class="content-box" tabindex="0">
+                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop&crop=center" alt="Technology and computer" class="box-image">
+                    <div class="box-content">
+                        <div class="box-title">Technology Help</div>
+                        <div class="box-subtitle">Computer and device assistance</div>
+                        <span class="box-keyword">Technology</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <form class="login-form" id="loginForm">
+            <button type="button" class="close-btn" id="closeBtn">&times;</button>
+            <h2 class="login-title">Welcome Back</h2>
+            
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" class="form-input" id="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" class="form-input" id="password" required>
+            </div>
+            
+            <button type="submit" class="submit-btn">Login</button>
+        </form>
+    </div>
+
+    <script>
+        // Login modal functionality
+        const loginBtn = document.getElementById('loginBtn');
+        const loginModal = document.getElementById('loginModal');
+        const closeBtn = document.getElementById('closeBtn');
+        const loginForm = document.getElementById('loginForm');
+
+        loginBtn.addEventListener('click', () => {
+            loginModal.classList.add('active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            loginModal.classList.remove('active');
+        });
+
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                loginModal.classList.remove('active');
+            }
+        });
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Here you would typically send the login data to your server
+            console.log('Login attempt:', { email, password });
+            alert('Login functionality would be implemented here!');
+            loginModal.classList.remove('active');
+        });
+
+        // Enhanced interaction with smooth animations
+        document.querySelectorAll('.content-box').forEach((box, index) => {
+            box.addEventListener('click', function() {
+                // Create ripple effect
+                const ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(0,0,0,0.1);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                    width: 100px;
+                    height: 100px;
+                    left: 50%;
+                    top: 50%;
+                    margin-left: -50px;
+                    margin-top: -50px;
+                `;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+                
+                // Get the category from the box title
+                const category = this.querySelector('.box-title').textContent;
+                console.log('Clicked on category:', category);
+                alert(`You clicked on: ${category}`);
+            });
+        });
+
+        // Search functionality
+        const searchBar = document.querySelector('.search-bar');
+        searchBar.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim()) {
+                console.log('Searching for:', this.value);
+                alert(`Searching for: ${this.value}`);
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.classList.contains('content-box')) {
+                e.target.click();
+            }
+            
+            // Close modal with Escape key
+            if (e.key === 'Escape' && loginModal.classList.contains('active')) {
+                loginModal.classList.remove('active');
+            }
+        });
+
+        // Smooth scroll behavior
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+</body>
+</html>

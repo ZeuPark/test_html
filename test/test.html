@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pearl-Inspired Senior Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-text: #1a1a1a;
+            --secondary-text: #666666;
+            --accent-color: #000000;
+            --light-bg: #f8f8f8;
+            --white: #ffffff;
+            --border-color: #e5e5e5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            background: var(--white);
+            color: var(--primary-text);
+            font-size: 18px;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            padding: 32px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--accent-color);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-item {
+            color: var(--primary-text);
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 400;
+            transition: color 0.3s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-item:hover {
+            color: var(--secondary-text);
+        }
+
+        .search-bar {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            background: var(--light-bg);
+            width: 240px;
+            transition: all 0.3s ease;
+            letter-spacing: -0.01em;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: var(--white);
+        }
+
+        .search-bar::placeholder {
+            color: var(--secondary-text);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .main-title {
+            font-size: clamp(48px, 8vw, 72px);
+            font-weight: 500;
+            color: var(--accent-color);
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: var(--secondary-text);
+            margin-bottom: 80px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            letter-spacing: -0.01em;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .content-box {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px 32px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(0,0,0,0.02) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .content-box:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        .content-box:hover::before {
+            opacity: 1;
+        }
+
+        .content-box.featured {
+            background: var(--light-bg);
+            border-color: var(--accent-color);
+        }
+
+        .content-box.featured::before {
+            background: linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.04) 100%);
+        }
+
+        .box-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--accent-color);
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
+            position: relative;
+            z-index: 2;
+        }
+
+        .box-subtitle {
+            font-size: 16px;
+            color: var(--secondary-text);
+            letter-spacing: -0.01em;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 24px 20px;
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            .nav-menu {
+                order: 3;
+                gap: 24px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .search-bar {
+                order: 2;
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .main-content {
+                padding: 60px 20px;
+            }
+
+            .subtitle {
+                margin-bottom: 60px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+        }
+
+        /* Focus states */
+        .nav-item:focus,
+        .search-bar:focus,
+        .content-box:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        /* Loading animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .content-box {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .content-box:nth-child(1) { animation-delay: 0.1s; }
+        .content-box:nth-child(2) { animation-delay: 0.2s; }
+        .content-box:nth-child(3) { animation-delay: 0.3s; }
+        .content-box:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">Logo</div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item">Menu 1</a>
+                <a href="#" class="nav-item">Menu 2</a>
+                <a href="#" class="nav-item">Menu 3</a>
+                <a href="#" class="nav-item">Menu 4</a>
+            </nav>
+            <input type="text" class="search-bar" placeholder="Search Bar">
+        </header>
+
+        <main class="main-content">
+            <h1 class="main-title">Ask About Anything!</h1>
+            <p class="subtitle">Discover answers, explore topics, and get the information you need with our easy-to-use interface designed for clarity and simplicity.</p>
+            
+            <div class="content-grid">
+                <div class="content-box featured" tabindex="0">
+                    <div class="box-title">Example with Photo</div>
+                    <div class="box-subtitle">and Keyword</div>
+                </div>
+                
+                <div class="content-box" tabindex="0">
+                    <div class="box-title">Quick Answers</div>
+                    <div class="box-subtitle">Get instant responses to your questions</div>
+                </div>
+                
+                <div class="content-box" tabindex="0">
+                    <div class="box-title">Browse Topics</div>
+                    <div class="box-subtitle">Explore categories that interest you</div>
+                </div>
+                
+                <div class="content-box" tabindex="0">
+                    <div class="box-title">Help Center</div>
+                    <div class="box-subtitle">Find support and guidance</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Enhanced interaction with smooth animations
+        document.querySelectorAll('.content-box').forEach((box, index) => {
+            box.addEventListener('click', function() {
+                // Create ripple effect
+                const ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(0,0,0,0.1);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                    width: 100px;
+                    height: 100px;
+                    left: 50%;
+                    top: 50%;
+                    margin-left: -50px;
+                    margin-top: -50px;
+                `;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+                
+                // Add your click functionality here
+                console.log('Clicked on:', this.querySelector('.box-title').textContent);
+            });
+        });
+
+        // Search functionality
+        const searchBar = document.querySelector('.search-bar');
+        searchBar.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim()) {
+                console.log('Searching for:', this.value);
+                // Add your search functionality here
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.classList.contains('content-box')) {
+                e.target.click();
+            }
+        });
+
+        // Smooth scroll behavior
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+</body>
+</html>
