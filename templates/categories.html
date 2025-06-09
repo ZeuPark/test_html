@@ -1,0 +1,185 @@
+{% extends "index.html" %}
+
+{% block title %}Categories - Q&A Hub{% endblock %}
+
+{% block content %}
+<div class="category-content">
+    <a href="{{ url_for('home') }}" class="back-btn">← Back to Home</a>
+    <h1 class="page-title">Browse Categories</h1>
+    <p class="subtitle">Choose a category to explore questions and get AI-powered answers.</p>
+    
+    <div class="category-list">
+        {% for category in categories %}
+        <div class="category-item" onclick="exploreCategory('{{ category.id }}', '{{ category.name }}')">
+            <div class="category-icon">{{ category.icon }}</div>
+            <div class="category-name">{{ category.name }}</div>
+            <div class="category-desc">{{ category.count }} questions</div>
+            <div class="category-action">
+                <button class="explore-btn">Explore →</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Popular Questions in Categories -->
+    <div class="popular-section">
+        <h2>Popular Questions by Category</h2>
+        <div class="popular-grid" id="popularQuestions">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<style>
+.category-content {
+    padding: 60px 40px;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 18px;
+    color: var(--secondary-text);
+    margin-bottom: 50px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.category-item {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.category-action {
+    margin-top: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.category-item:hover .category-action {
+    opacity: 1;
+}
+
+.explore-btn {
+    background: var(--blue-accent);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.explore-btn:hover {
+    background: #1d4ed8;
+    transform: translateX(5px);
+}
+
+.popular-section {
+    margin-top: 80px;
+    text-align: center;
+}
+
+.popular-section h2 {
+    font-size: 32px;
+    margin-bottom: 40px;
+    color: var(--accent-color);
+}
+
+.popular-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.popular-question {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.popular-question:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: var(--blue-accent);
+    transform: translateY(-2px);
+}
+
+.popular-question-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--accent-color);
+}
+
+.popular-question-category {
+    display: inline-block;
+    background: var(--light-bg);
+    color: var(--secondary-text);
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .category-content {
+        padding: 40px 20px;
+    }
+    
+    .category-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .popular-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function exploreCategory(categoryId, categoryName) {
+    // Set category and open ask modal
+    document.getElementById('questionCategory').value = categoryName.split(' ')[0];
+    openAskModal();
+}
+
+// Load popular questions when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadPopularQuestions();
+});
+
+async function loadPopularQuestions() {
+    try {
+        const response = await fetch('/api/questions?limit=6');
+        const data = await response.json();
+        const questions = data.questions || data;
+        
+        const container = document.getElementById('popularQuestions');
+        if (questions && questions.length > 0) {
+            container.innerHTML = questions.map(question => `
+                <div class="popular-question" onclick="viewQuestion(${question.id})">
+                    <div class="popular-question-title">${question.title}</div>
+                    <div style="margin-top: 8px;">
+                        <span class="popular-question-category">${question.category}</span>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = '<p style="color: var(--secondary-text);">No questions available yet. Be the first to ask!</p>';
+        }
+    } catch (error) {
+        console.error('Error loading popular questions:', error);
+        document.getElementById('popularQuestions').innerHTML = 
+            '<p style="color: var(--secondary-text);">Unable to load questions right now.</p>';
+    }
+}
+</script>
+{% endblock %}
