@@ -10,10 +10,14 @@ import os
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all domains
 
-# Initialize your ML model
+# Production configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+
+# Initialize your ML model (load once for better performance)
 # model = YourMLModel()
 
-# Sample data (in a real app, this would be a database)
+# Sample data (in production, replace with a real database)
 questions_db = [
     {
         "id": 1,
@@ -41,6 +45,24 @@ questions_db = [
         "answers": 5,
         "timestamp": "1 day ago",
         "author": "HealthyLiving"
+    },
+    {
+        "id": 4,
+        "title": "How do I protect myself from online scams?",
+        "category": "Technology",
+        "content": "I keep getting suspicious emails and calls. How can I stay safe?",
+        "answers": 8,
+        "timestamp": "3 hours ago",
+        "author": "SafetyFirst"
+    },
+    {
+        "id": 5,
+        "title": "What's the best way to save for retirement?",
+        "category": "Finance",
+        "content": "I'm 50 and want to make sure I have enough saved for retirement.",
+        "answers": 12,
+        "timestamp": "1 day ago",
+        "author": "PlanningAhead"
     }
 ]
 
@@ -78,85 +100,189 @@ def ask_question():
     """Handle question submission and ML model inference"""
     try:
         data = request.get_json()
-        question = data.get('question', '')
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+            
+        question = data.get('question', '').strip()
         category = data.get('category', 'General')
         
         if not question:
             return jsonify({'error': 'Question is required'}), 400
         
-        # Here's where you'd use your ML model
-        # Example:
+        if len(question) > 1000:  # Reasonable limit
+            return jsonify({'error': 'Question too long (max 1000 characters)'}), 400
+        
+        # HERE'S WHERE YOU INTEGRATE YOUR ML MODEL
+        # Replace this sample response with your actual model inference
+        
+        # Example for different types of models:
+        
+        # Option 1: Hugging Face Transformers
+        # answer = model(f"Answer this {category.lower()} question: {question}")
+        
+        # Option 2: OpenAI API
+        # response = openai.ChatCompletion.create(
+        #     model="gpt-3.5-turbo",
+        #     messages=[{"role": "user", "content": f"Answer this {category} question: {question}"}]
+        # )
+        # answer = response.choices[0].message.content
+        
+        # Option 3: Custom PyTorch/TensorFlow model
         # answer = model.generate_answer(question, category)
         
-        # For now, we'll return a sample response
-        sample_answer = f"Thank you for your question about {category.lower()}. Here's a helpful response based on our AI model: [Your ML model would generate an answer here based on the question: '{question}']. This is where your trained model would provide a personalized, accurate response."
+        # Sample response (replace with your model)
+        sample_answers = {
+            "Technology": f"For your technology question about '{question}', here are some helpful steps: First, try restarting your device. If that doesn't work, check for software updates. You can also contact customer support for your specific device. Always keep your passwords secure and consider using a password manager.",
+            
+            "Health": f"Regarding your health question '{question}', it's always best to consult with your healthcare provider for personalized advice. In general, maintaining a healthy lifestyle with regular exercise, balanced nutrition, and adequate sleep is important. Don't hesitate to schedule regular check-ups with your doctor.",
+            
+            "Travel": f"For your travel question '{question}', here's what I recommend: Check passport expiration dates (should be valid 6+ months), research visa requirements for your destination, notify your bank of travel plans, and consider travel insurance. The State Department website has current travel advisories.",
+            
+            "Legal": f"Concerning your legal question '{question}', I'd recommend consulting with a qualified attorney for specific legal advice. Many areas have legal aid societies that offer free or low-cost consultations. You can also check your state's bar association website for referrals.",
+            
+            "Finance": f"For your financial question '{question}', consider speaking with a financial advisor who can provide personalized guidance. Generally, it's wise to have an emergency fund, diversify investments, and regularly review your financial goals. Many banks offer free financial planning consultations.",
+            
+            "General": f"Thank you for your question '{question}'. Here's some general guidance: Research from reliable sources, consult with experts when needed, and don't hesitate to ask follow-up questions. If this is urgent, please contact the appropriate professionals or services."
+        }
         
-        # Save question to database (in real app)
+        answer = sample_answers.get(category, sample_answers["General"])
+        
+        # Save question to database (in real app, use proper database)
         new_question = {
             "id": len(questions_db) + 1,
             "title": question,
             "category": category,
             "content": question,
-            "answers": 1,  # Our AI answer
+            "answers": 1,  # Our AI answer counts as 1
             "timestamp": "Just now",
             "author": "You",
-            "ai_answer": sample_answer
+            "ai_answer": answer
         }
         
         questions_db.append(new_question)
         
         return jsonify({
             'success': True,
-            'answer': sample_answer,
-            'question_id': new_question['id']
+            'answer': answer,
+            'question_id': new_question['id'],
+            'category': category
         })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        app.logger.error(f"Error in ask_question: {str(e)}")
+        return jsonify({'error': 'An error occurred processing your question. Please try again.'}), 500
 
 @app.route('/api/questions')
 def get_questions():
     """API endpoint to get all questions"""
-    return jsonify(questions_db)
+    try:
+        # In production, add pagination
+        limit = request.args.get('limit', 20, type=int)
+        offset = request.args.get('offset', 0, type=int)
+        
+        # Simple pagination
+        paginated_questions = questions_db[offset:offset + limit]
+        
+        return jsonify({
+            'questions': paginated_questions,
+            'total': len(questions_db),
+            'limit': limit,
+            'offset': offset
+        })
+    except Exception as e:
+        app.logger.error(f"Error in get_questions: {str(e)}")
+        return jsonify({'error': 'Failed to fetch questions'}), 500
 
 @app.route('/api/questions/<int:question_id>')
 def get_question(question_id):
     """API endpoint to get a specific question"""
-    question = next((q for q in questions_db if q['id'] == question_id), None)
-    if question:
-        return jsonify(question)
-    return jsonify({'error': 'Question not found'}), 404
+    try:
+        question = next((q for q in questions_db if q['id'] == question_id), None)
+        if question:
+            return jsonify(question)
+        return jsonify({'error': 'Question not found'}), 404
+    except Exception as e:
+        app.logger.error(f"Error in get_question: {str(e)}")
+        return jsonify({'error': 'Failed to fetch question'}), 500
 
 @app.route('/api/categories')
 def get_categories():
     """API endpoint to get all categories"""
-    return jsonify(categories_db)
+    try:
+        return jsonify(categories_db)
+    except Exception as e:
+        app.logger.error(f"Error in get_categories: {str(e)}")
+        return jsonify({'error': 'Failed to fetch categories'}), 500
 
 @app.route('/api/search')
 def search():
-    """Search functionality"""
-    query = request.args.get('q', '')
-    if not query:
-        return jsonify([])
-    
-    # Simple search in questions
-    results = []
-    for question in questions_db:
-        if (query.lower() in question['title'].lower() or 
-            query.lower() in question['content'].lower()):
-            results.append(question)
-    
-    return jsonify(results)
+    """Search functionality with better error handling"""
+    try:
+        query = request.args.get('q', '').strip()
+        if not query:
+            return jsonify([])
+        
+        if len(query) > 200:  # Reasonable search limit
+            return jsonify({'error': 'Search query too long'}), 400
+        
+        # Simple search in questions (in production, use proper search engine)
+        results = []
+        query_lower = query.lower()
+        
+        for question in questions_db:
+            if (query_lower in question['title'].lower() or 
+                query_lower in question['content'].lower() or
+                query_lower in question['category'].lower()):
+                results.append(question)
+        
+        # Limit results
+        results = results[:50]  # Max 50 results
+        
+        return jsonify(results)
+        
+    except Exception as e:
+        app.logger.error(f"Error in search: {str(e)}")
+        return jsonify({'error': 'Search failed'}), 500
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for monitoring"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.datetime.utcnow().isoformat(),
+        'version': '1.0.0'
+    })
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('index.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    app.logger.error(f"Internal error: {str(error)}")
+    return jsonify({'error': 'Internal server error'}), 500
+
+# Create required directories
+def create_directories():
+    directories = ['templates', 'static']
+    for directory in directories:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            print(f"Created directory: {directory}")
 
 if __name__ == '__main__':
-    # Create templates directory if it doesn't exist
-    if not os.path.exists('templates'):
-        os.makedirs('templates')
-    if not os.path.exists('static'):
-        os.makedirs('static')
+    create_directories()
+    
+    # Get port from environment variable (required for cloud deployment)
+    port = int(os.environ.get('PORT', 5000))
     
     print("🚀 Starting Q&A Platform Server...")
-    print("📝 Place your ML model integration in the ask_question() function")
-    print("🌐 Visit: http://localhost:5000")
+    print(f"📝 Integrate your ML model in the ask_question() function")
+    print(f"🌐 Server will run on port {port}")
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    if DEBUG:
+        print("🔧 Running in DEBUG mode")
+        app.run(debug=True, host='0.0.0.0', port=port)
+    else:
+        print("🚀 Running in PRODUCTION mode")
+        app.run(debug=False, host='0.0.0.0', port=port)
